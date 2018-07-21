@@ -268,43 +268,31 @@ def update_parameters(parameters, grads, learning_rate):
     L = len(parameters) // 2  # number of layers in the neural network
 
     # Update rule for each parameter. Use a for loop.
-    ### START CODE HERE ### (≈ 3 lines of code)
     for l in range(L):
         parameters["W" + str(l + 1)] = parameters["W" + str(l + 1)] - learning_rate * \
                                        grads["dW" + str(l + 1)]
         parameters["b" + str(l + 1)] = parameters["b" + str(l + 1)] - learning_rate * \
                                        grads["db" + str(l + 1)]
-    ### END CODE HERE ###
     return parameters
 
 if __name__ == '__main__':
-    # params = initialize_parameters_deep([5, 4, 1])
-    # print("W1 = " + str(params["W1"]))
-    # print("b1 = " + str(params["b1"]))
-    # print("W2 = " + str(params["W2"]))
-    # print("b2 = " + str(params["b2"]), end='\n\n')
-    #
-    # m = 7
-    # X = np.random.rand(5, m)
-    # Y = np.random.rand(m)
-    # print(X)
-    #
-    # AL, caches = L_model_forward(X, params)
-    # print("Final output")
-    # print(AL, end="\n\n")
-    #
-    # C = compute_cost(AL, Y)
-    # print("Cost")
-    # print(C, end="\n\n")
-    #
-    # L_model_backward(AL, Y, caches)
+    params = initialize_parameters_deep([5, 4, 1])
+    print("W1 = " + str(params["W1"]))
+    print("b1 = " + str(params["b1"]))
+    print("W2 = " + str(params["W2"]))
+    print("b2 = " + str(params["b2"]), end='\n\n')
 
-    # a = np.array([[1, 2, 3]])
-    # b = np.array([[1], [2], [3]])
-    # c = np.array([1, 2, 3])
+    m = 7
+    X = np.random.rand(5, m)
+    Y = np.random.rand(m)
+    print(X)
 
-    A = np.array([[56, 0, 4.4, 68], [1.2, 104, 52, 8], [1.4, 135, 99, 0.9]])
-    print(A)
-    cal = A.sum(axis=0)
-    print(cal)
-    print(cal.reshape(1, 4))
+    AL, caches = L_model_forward(X, params)
+    print("Final output")
+    print(AL, end="\n\n")
+
+    C = compute_cost(AL, Y)
+    print("Cost")
+    print(C, end="\n\n")
+
+    L_model_backward(AL, Y, caches)
