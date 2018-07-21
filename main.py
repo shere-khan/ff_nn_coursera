@@ -10,6 +10,7 @@ def initialize_parameters(n_x, n_h, n_y):
     b1 = np.zeros((n_h, 1))
     W2 = np.random.randn(n_y, n_h) * 0.01
     b2 = np.zeros((n_y, 1))
+    # b2 = np.random.randn(n_y, 1)
 
     assert (W1.shape == (n_h, n_x))
     assert (b1.shape == (n_h, 1))
@@ -29,9 +30,10 @@ def initialize_parameters_deep(layer_dims):
     L = len(layer_dims)  # number of layers in the network
 
     for l in range(1, L):
-        parameters['W' + str(l)] = np.random.randn(layer_dims[l],
-                                                   layer_dims[l - 1]) * 0.01
-        parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+        parameters['W' + str(l)] = np.random.randn(
+            layer_dims[l], layer_dims[l - 1]) * 0.01
+        # parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+        parameters['b' + str(l)] = np.random.randn(layer_dims[l], 1)
 
         assert (parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
         assert (parameters['b' + str(l)].shape == (layer_dims[l], 1))
@@ -39,7 +41,8 @@ def initialize_parameters_deep(layer_dims):
     return parameters
 
 def linear_forward(A, W, b):
-    Z = np.dot(W, A) + b
+    WA = np.dot(W, A)
+    Z = WA + b
 
     assert (Z.shape == (W.shape[0], A.shape[1]))
     cache = (A, W, b)
@@ -154,7 +157,7 @@ def linear_backward(dZ, cache):
 
     # todo: check db
     dW = np.divide(np.matmul(dZ, np.matrix.transpose(A_prev)), m)
-    db = np.sum(dZ) / m
+    db = np.squeeze(np.sum(dZ, axis=1, keepdims=True)) / m
     dA_prev = np.matmul(np.matrix.transpose(W), dZ)
 
     assert (dA_prev.shape == A_prev.shape)
@@ -164,10 +167,12 @@ def linear_backward(dZ, cache):
     return dA_prev, dW, db
 
 def sigmoid_backward(dA, activation_cache):
-    g = sigmoid(activation_cache[1])
-    dg = 1 - g
+    g = sigmoid(activation_cache)[0]
+    dg = np.subtract(1, g[0])
+    dAg = np.multiply(dA, g)
+    dAgdg = np.multiply(dAg, dg)
 
-    return dA * g * dg
+    return dAgdg
 
 def relu_backward(dA, activation_cache):
     # todo
@@ -246,24 +251,60 @@ def L_model_backward(AL, Y, caches):
 
     return grads
 
+def update_parameters(parameters, grads, learning_rate):
+    """
+    Update parameters using gradient descent
+
+    Arguments:
+    parameters -- python dictionary containing your parameters
+    grads -- python dictionary containing your gradients, output of L_model_backward
+
+    Returns:
+    parameters -- python dictionary containing your updated parameters
+                  parameters["W" + str(l)] = ...
+                  parameters["b" + str(l)] = ...
+    """
+
+    L = len(parameters) // 2  # number of layers in the neural network
+
+    # Update rule for each parameter. Use a for loop.
+    ### START CODE HERE ### (≈ 3 lines of code)
+    for l in range(L):
+        parameters["W" + str(l + 1)] = parameters["W" + str(l + 1)] - learning_rate * \
+                                       grads["dW" + str(l + 1)]
+        parameters["b" + str(l + 1)] = parameters["b" + str(l + 1)] - learning_rate * \
+                                       grads["db" + str(l + 1)]
+    ### END CODE HERE ###
+    return parameters
+
 if __name__ == '__main__':
-    params = initialize_parameters_deep([5, 4, 1])
-    print("W1 = " + str(params["W1"]))
-    print("b1 = " + str(params["b1"]))
-    print("W2 = " + str(params["W2"]))
-    print("b2 = " + str(params["b2"]), end='\n\n')
+    # params = initialize_parameters_deep([5, 4, 1])
+    # print("W1 = " + str(params["W1"]))
+    # print("b1 = " + str(params["b1"]))
+    # print("W2 = " + str(params["W2"]))
+    # print("b2 = " + str(params["b2"]), end='\n\n')
+    #
+    # m = 7
+    # X = np.random.rand(5, m)
+    # Y = np.random.rand(m)
+    # print(X)
+    #
+    # AL, caches = L_model_forward(X, params)
+    # print("Final output")
+    # print(AL, end="\n\n")
+    #
+    # C = compute_cost(AL, Y)
+    # print("Cost")
+    # print(C, end="\n\n")
+    #
+    # L_model_backward(AL, Y, caches)
 
-    m = 7
-    X = np.random.rand(5, m)
-    Y = np.random.rand(m)
-    print(X)
+    # a = np.array([[1, 2, 3]])
+    # b = np.array([[1], [2], [3]])
+    # c = np.array([1, 2, 3])
 
-    AL, caches = L_model_forward(X, params)
-    print("Final output")
-    print(AL, end="\n\n")
-
-    C = compute_cost(AL, Y)
-    print("Cost")
-    print(C, end="\n\n")
-
-    L_model_backward(AL, Y, caches)
+    A = np.array([[56, 0, 4.4, 68], [1.2, 104, 52, 8], [1.4, 135, 99, 0.9]])
+    print(A)
+    cal = A.sum(axis=0)
+    print(cal)
+    print(cal.reshape(1, 4))
